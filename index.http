@@ -1,0 +1,9 @@
+###VARIABLES
+@baseUrl=http://localhost:3000
+@apiUrl={{baseUrl}}/api
+
+##RUTA RAIZ Y HEALTH CHECK
+GET {{baseUrl}}/health
+
+##INFO API
+GET {{apiUrl}}/

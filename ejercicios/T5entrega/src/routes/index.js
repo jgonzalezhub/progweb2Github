@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const router = Router();
 
@@ -14,7 +14,7 @@ const routeFiles = readdirSync(__dirname)
 
 for (const file of routeFiles) {
   const routeName = file.replace('.routes.js', '');
-  const routeModule = await import(join(__dirname, file));
+  const routeModule = await import(pathToFileURL(join(__dirname, file)).href);
   router.use(`/${routeName}`, routeModule.default);
 }
 

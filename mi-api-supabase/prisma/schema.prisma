@@ -1,0 +1,15 @@
+// prisma/schema.prisma
+
+// Configuración del generador (cliente)
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Configuración de la base de datos
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")  // Para migraciones en Supabase
+}
+
+// Aquí van tus modelos...

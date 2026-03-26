@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(grep -E \"^\\(express|mongoose|helmet|morgan|swagger|zod|jsonwebtoken|multer\\)$\")",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(npm install:*)",
+      "Bash(node --env-file=.env --input-type=module -e \":*)"
+    ]
+  }
+}

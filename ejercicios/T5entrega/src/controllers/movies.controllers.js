@@ -1,4 +1,4 @@
-import Movie from '../models/movie.model.js';
+import Movie from '../models/model.movie.js';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 

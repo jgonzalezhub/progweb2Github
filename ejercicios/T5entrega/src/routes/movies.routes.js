@@ -11,7 +11,7 @@ import {
   topMovies,
   uploadCover,
   getCover
-} from '../controllers/movies.controller.js';
+} from '../controllers/movies.controllers.js';
 
 import { validate, validateObjectId } from '../middleware/validate.middleware.js';
 import { createMovieSchema, updateMovieSchema } from '../schemas/movie.schema.js';

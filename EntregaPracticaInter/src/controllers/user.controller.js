@@ -1,0 +1,12 @@
+export const registerCtrl = async (req, res) => {};
+export const validateEmailCtrl = async (req, res) => {};
+export const loginCtrl = async (req, res) => {};
+export const onboardingPersonalCtrl = async (req, res) => {};
+export const onboardingCompanyCtrl = async (req, res) => {};
+export const uploadLogoCtrl = async (req, res) => {};
+export const getMeCtrl = async (req, res) => {};
+export const refreshTokenCtrl = async (req, res) => {};
+export const logoutCtrl = async (req, res) => {};
+export const deleteUserCtrl = async (req, res) => {};
+export const inviteUserCtrl = async (req, res) => {};
+export const changePasswordCtrl = async (req, res) => {};

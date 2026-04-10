@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { socketAuthMiddleware } from '../middleware/auth.middleware.js';
+import { socketAuthMiddleware } from '../middleware/session.middleware.js';
 import { registerChatHandlers } from './handlers/chat.handler.js';
 import { registerRoomHandlers } from './handlers/room.handler.js';
 

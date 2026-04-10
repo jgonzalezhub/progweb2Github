@@ -1,6 +1,6 @@
 import { usersModel } from '../models/index.js';
-import { encrypt, compare } from '../utils/password.js';
-import { tokenSign } from '../utils/jwt.js';
+import { encrypt, compare } from '../utils/handlePassword.js';
+import { tokenSign } from '../utils/handleJwt.js';
 import { handleHttpError } from '../utils/handleError.js';
 
 export const registerCtrl = async (req, res) => {

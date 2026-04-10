@@ -8,9 +8,9 @@ const startServer = async () => {
   try {
     await dbConnect();
     httpServer.listen(PORT, () => {
-      console.log(`Servidor en http://localhost:${PORT}`);
-      console.log(`Chat en http://localhost:${PORT}/chat.html`);
-      console.log(`API en http://localhost:${PORT}/api`);
+      console.log(`🚀 Servidor en http://localhost:${PORT}`);
+      console.log(`💬 Chat en http://localhost:${PORT}/chat.html`);
+      console.log(`📚 API en http://localhost:${PORT}/api`);
     });
   } catch (error) {
     console.error('❌ Error al iniciar:', error);

@@ -1,4 +1,4 @@
-import { verifyToken } from '../utils/jwt.js';
+import { verifyToken } from '../utils/handleJwt.js';
 import { handleHttpError } from '../utils/handleError.js';
 import { usersModel } from '../models/index.js';
 

@@ -9,6 +9,8 @@ const startServer = async () => {
     await dbConnect();
     app.listen(PORT, () => {
       console.log(`Servidor en http://localhost:${PORT}`);
+      console.log(`API en http://localhost:${PORT}/api`);
+      console.log(`Health en http://localhost:${PORT}/health`);
     });
   } catch (error) {
     console.error('Error al iniciar:', error);

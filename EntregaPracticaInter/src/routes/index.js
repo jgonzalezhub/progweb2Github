@@ -15,6 +15,7 @@ for (const file of routeFiles) {
   const routeName = file.replace('.routes.js', '');
   const routeModule = await import(join(__dirname, file));
   router.use(`/${routeName}`, routeModule.default);
+  console.log(`📍 Ruta cargada: /api/${routeName}`);
 }
 
 export default router;

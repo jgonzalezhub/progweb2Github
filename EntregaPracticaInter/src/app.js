@@ -3,8 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import routes from './routes/index.js';
 import { errorHandler, notFound } from './middleware/error.middleware.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -26,7 +31,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Archivos estáticos
-app.use('/uploads', express.static('storage'));
+app.use('/uploads', express.static(join(__dirname, '../storage')));
 
 // ============================================
 // Rutas

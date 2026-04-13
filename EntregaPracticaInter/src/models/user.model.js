@@ -95,8 +95,7 @@ userSchema.methods.toJSON = function () {
   return user;
 };
 
-// Índices
-userSchema.index({ email: 1 });
+// Índices (email ya indexado por unique: true en el schema)
 userSchema.index({ company: 1 });
 userSchema.index({ status: 1 });
 userSchema.index({ role: 1 });

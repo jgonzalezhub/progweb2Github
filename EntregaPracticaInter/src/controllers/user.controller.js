@@ -1,3 +1,4 @@
+import { randomInt, randomBytes } from 'node:crypto';
 import { usersModel, companiesModel } from '../models/index.js';
 import { encrypt, compare } from '../utils/handlePassword.js';
 import { tokenSign, tokenSignRefresh, verifyRefreshToken } from '../utils/handleJwt.js';
@@ -13,7 +14,7 @@ export const registerCtrl = async (req, res) => {
     if (existing) return handleHttpError(res, 'EMAIL_ALREADY_EXISTS', 409);
 
     const hashedPassword = await encrypt(password);
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = String(randomInt(100000, 1000000));
 
     const user = await usersModel.create({
       email,
@@ -35,7 +36,6 @@ export const registerCtrl = async (req, res) => {
     handleHttpError(res, 'ERROR_REGISTER_USER');
   }
 };
-
 
 // 2. PUT /api/user/validation — Validar código de email
 export const validateEmailCtrl = async (req, res) => {
@@ -161,18 +161,16 @@ export const onboardingCompanyCtrl = async (req, res) => {
   }
 };
 
-// 6. PATCH /api/user/logo — Subir logo
+// 6. PATCH /api/user/logo — Subir logo de empresa
 export const uploadLogoCtrl = async (req, res) => {
   try {
     if (!req.file) return handleHttpError(res, 'FILE_NOT_FOUND', 400);
 
-    const user = await usersModel.findById(req.user._id).populate('company');
+    if (!req.user.company) return handleHttpError(res, 'NO_COMPANY_ASSOCIATED', 400);
 
-    if (user.company) {
-      await companiesModel.findByIdAndUpdate(user.company._id, {
-        logo: req.file.filename
-      });
-    }
+    const logoUrl = `/uploads/${req.file.filename}`;
+
+    await companiesModel.findByIdAndUpdate(req.user.company, { logo: logoUrl });
 
     const updated = await usersModel.findById(req.user._id).populate('company', 'name cif logo');
     res.json({ message: 'Logo actualizado', data: updated });
@@ -268,9 +266,10 @@ export const inviteUserCtrl = async (req, res) => {
     const existing = await usersModel.findOne({ email });
     if (existing) return handleHttpError(res, 'EMAIL_ALREADY_EXISTS', 409);
 
-    const tempPassword = Math.random().toString(36).slice(-10) + 'A1!';
+    // Generar contraseña temporal aleatoria (CSPRNG)
+    const tempPassword = randomBytes(8).toString('hex') + 'A1!';
     const hashedPassword = await encrypt(tempPassword);
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = String(randomInt(100000, 1000000));
 
     const guest = await usersModel.create({
       email,
@@ -285,13 +284,13 @@ export const inviteUserCtrl = async (req, res) => {
     const company = await companiesModel.findById(adminUser.company);
     notificationService.emit('user:invited', {
       email: guest.email,
+      tempPassword,
       company: company?.name || adminUser.company
     });
 
     res.status(201).json({
       message: 'Usuario invitado correctamente',
-      data: guest,
-      tempPassword
+      data: guest
     });
   } catch (err) {
     console.error(err);
@@ -299,7 +298,9 @@ export const inviteUserCtrl = async (req, res) => {
   }
 };
 
+// ============================================================
 // BONUS: PUT /api/user/password — Cambiar contraseña
+// ============================================================
 export const changePasswordCtrl = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;

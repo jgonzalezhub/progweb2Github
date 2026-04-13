@@ -68,7 +68,7 @@ export const onboardingPersonalSchema = z.object({
 });
 
 // ============================================================
-// Onboarding empresa — discriminatedUnion (bonus)
+// Onboarding empresa — discriminatedUnion
 // Autónomo: isFreelance = true → no requiere name de empresa
 // Empresa: isFreelance = false → requiere name
 // ============================================================
@@ -125,7 +125,7 @@ export const inviteSchema = z.object({
 });
 
 // ============================================================
-// Cambiar contraseña — refine (bonus)
+// Cambiar contraseña — refine
 // ============================================================
 export const changePasswordSchema = z.object({
   body: z

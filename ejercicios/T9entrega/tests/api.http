@@ -1,0 +1,161 @@
+### Variables globales
+@baseUrl = http://localhost:3000/api
+@token = <pega_aqui_el_token_JWT>
+@adminToken = <pega_aqui_el_token_de_admin>
+@librarianToken = <pega_aqui_el_token_de_librarian>
+
+### =====================
+### AUTH
+### =====================
+
+### Registrar usuario normal
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "nuevo@test.com",
+  "name": "Usuario Test",
+  "password": "password123"
+}
+
+###
+
+### Login de usuario normal
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@biblioteca.com",
+  "password": "user123"
+}
+
+###
+
+### Login de admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@biblioteca.com",
+  "password": "admin123"
+}
+
+###
+
+### Ver perfil propio
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+###
+
+### =====================
+### BOOKS
+### =====================
+
+### Listar todos los libros
+GET {{baseUrl}}/books
+
+###
+
+### Listar libros con filtros
+GET {{baseUrl}}/books?genre=Fiction&available=true
+
+###
+
+### Ver detalle de un libro
+GET {{baseUrl}}/books/1
+
+###
+
+### Crear libro (requiere LIBRARIAN o ADMIN)
+POST {{baseUrl}}/books
+Authorization: Bearer {{librarianToken}}
+Content-Type: application/json
+
+{
+  "isbn": "978-1-234567-89-0",
+  "title": "El nombre del viento",
+  "author": "Patrick Rothfuss",
+  "genre": "Fantasy",
+  "description": "Primera parte de la Crónica del Asesino de Reyes.",
+  "publishedYear": 2007,
+  "copies": 3
+}
+
+###
+
+### Actualizar libro (requiere LIBRARIAN o ADMIN)
+PUT {{baseUrl}}/books/1
+Authorization: Bearer {{librarianToken}}
+Content-Type: application/json
+
+{
+  "copies": 6,
+  "available": 6
+}
+
+###
+
+### Eliminar libro (requiere ADMIN)
+DELETE {{baseUrl}}/books/1
+Authorization: Bearer {{adminToken}}
+
+###
+
+### =====================
+### LOANS
+### =====================
+
+### Ver mis préstamos
+GET {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+
+###
+
+### Ver todos los préstamos (solo LIBRARIAN/ADMIN)
+GET {{baseUrl}}/loans/all
+Authorization: Bearer {{librarianToken}}
+
+###
+
+### Solicitar un préstamo
+POST {{baseUrl}}/loans
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookId": 1
+}
+
+###
+
+### Devolver un libro
+PUT {{baseUrl}}/loans/1/return
+Authorization: Bearer {{token}}
+
+###
+
+### =====================
+### REVIEWS
+### =====================
+
+### Ver reseñas de un libro
+GET {{baseUrl}}/books/1/reviews
+
+###
+
+### Crear reseña (el libro debe haber sido devuelto)
+POST {{baseUrl}}/books/1/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "comment": "Excelente libro, muy recomendado."
+}
+
+###
+
+### Eliminar mi reseña
+DELETE {{baseUrl}}/reviews/1
+Authorization: Bearer {{token}}

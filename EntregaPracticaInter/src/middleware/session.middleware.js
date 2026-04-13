@@ -11,7 +11,7 @@ const authMiddleware = async (req, res, next) => {
 
     if (!dataToken?._id) return handleHttpError(res, 'ERROR_ID_TOKEN', 401);
 
-    const user = await usersModel.findById(dataToken._id);
+    const user = await usersModel.findOne({ _id: dataToken._id, deletedAt: null });
     if (!user) return handleHttpError(res, 'USER_NOT_FOUND', 401);
 
     req.user = user;

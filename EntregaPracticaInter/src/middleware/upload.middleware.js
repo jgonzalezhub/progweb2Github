@@ -1,11 +1,14 @@
 import multer from 'multer';
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mkdirSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const storagePath = join(__dirname, '../../storage');
+mkdirSync(storagePath, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: join(__dirname, '../../storage'),
+  destination: storagePath,
   filename: (req, file, cb) =>
     cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`)
 });

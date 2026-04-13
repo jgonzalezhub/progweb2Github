@@ -10,8 +10,9 @@ notificationService.on('user:verified', (user) => {
   console.log(`[EVENT] user:verified — ${user.email}`);
 });
 
-notificationService.on('user:invited', ({ email, company }) => {
-  console.log(`[EVENT] user:invited — ${email} invitado a empresa ${company}`);
+notificationService.on('user:invited', ({ email, tempPassword, company }) => {
+  // En producción: enviar email con tempPassword al usuario invitado
+  console.log(`[EVENT] user:invited — ${email} invitado a empresa ${company} | temp: ${tempPassword}`);
 });
 
 notificationService.on('user:deleted', (user) => {

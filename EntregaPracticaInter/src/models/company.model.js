@@ -46,7 +46,7 @@ const companySchema = new mongoose.Schema(
   }
 );
 
-companySchema.index({ cif: 1 });
+// cif ya indexado por unique: true en el schema
 companySchema.index({ owner: 1 });
 
 const Company = mongoose.model('Company', companySchema);

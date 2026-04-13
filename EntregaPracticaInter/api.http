@@ -1,0 +1,143 @@
+### Variables
+@baseUrl = http://localhost:3000
+@token = TU_TOKEN_AQUI
+@refreshToken = TU_REFRESH_TOKEN_AQUI
+
+### Health check
+GET {{baseUrl}}/health
+
+###
+### 1. Registro (POST /api/user/register)
+POST {{baseUrl}}/api/user/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test1234!"
+}
+
+###
+### 2. Validar email (PUT /api/user/validation)
+PUT {{baseUrl}}/api/user/validation
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "code": "123456"
+}
+
+###
+### 3. Login (POST /api/user/login)
+POST {{baseUrl}}/api/user/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test1234!"
+}
+
+###
+### 4. Onboarding personal (PUT /api/user/register)
+PUT {{baseUrl}}/api/user/register
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Juan",
+  "lastName": "García López",
+  "nif": "12345678A",
+  "address": {
+    "street": "Calle Mayor 1",
+    "city": "Madrid",
+    "province": "Madrid",
+    "postalCode": "28001"
+  }
+}
+
+###
+### 5a. Onboarding empresa — Empresa (PATCH /api/user/company)
+PATCH {{baseUrl}}/api/user/company
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "isFreelance": false,
+  "cif": "B12345678",
+  "name": "Mi Empresa SL"
+}
+
+###
+### 5b. Onboarding empresa — Autónomo (PATCH /api/user/company)
+PATCH {{baseUrl}}/api/user/company
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "isFreelance": true,
+  "cif": "12345678A"
+}
+
+###
+### 6. Subir logo (PATCH /api/user/logo)
+# Usar cliente REST que soporte multipart/form-data
+PATCH {{baseUrl}}/api/user/logo
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="logo"; filename="logo.png"
+Content-Type: image/png
+
+< ./logo.png
+--boundary--
+
+###
+### 7. Obtener usuario (GET /api/user)
+GET {{baseUrl}}/api/user
+Authorization: Bearer {{token}}
+
+###
+### 8a. Refresh token (POST /api/user/refresh)
+POST {{baseUrl}}/api/user/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+### 8b. Logout (POST /api/user/logout)
+POST {{baseUrl}}/api/user/logout
+Authorization: Bearer {{token}}
+
+###
+### 9a. Eliminar usuario — soft delete
+DELETE {{baseUrl}}/api/user?soft=true
+Authorization: Bearer {{token}}
+
+###
+### 9b. Eliminar usuario — hard delete
+DELETE {{baseUrl}}/api/user
+Authorization: Bearer {{token}}
+
+###
+### 10. Invitar compañero (POST /api/user/invite) — solo admins
+POST {{baseUrl}}/api/user/invite
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "guest@example.com"
+}
+
+###
+### BONUS: Cambiar contraseña (PUT /api/user/password)
+PUT {{baseUrl}}/api/user/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "currentPassword": "Test1234!",
+  "newPassword": "NewPass5678!",
+  "confirmPassword": "NewPass5678!"
+}

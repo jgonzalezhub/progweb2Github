@@ -25,7 +25,7 @@ import {
   onboardingCompanySchema,
   inviteSchema,
   changePasswordSchema
-} from '../validators/user.validator.js';
+} from '../schemas/user.schema.js';
 
 const router = Router();
 

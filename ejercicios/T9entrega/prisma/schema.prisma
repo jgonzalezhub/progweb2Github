@@ -1,0 +1,81 @@
+// Generador del cliente Prisma para Node.js
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Conexión a la base de datos PostgreSQL (Supabase con pgBouncer)
+// url: conexión pooling para la app en runtime
+// directUrl: conexión directa usada por prisma migrate (bypassa pgBouncer)
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Roles de usuario disponibles en el sistema
+enum Role {
+  USER
+  LIBRARIAN
+  ADMIN
+}
+
+// Estados posibles de un préstamo
+enum LoanStatus {
+  ACTIVE
+  RETURNED
+  OVERDUE
+}
+
+// Modelo de usuario: almacena datos de autenticación y relaciones con préstamos y reseñas
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(USER)
+  loans     Loan[]
+  reviews   Review[]
+}
+
+// Modelo de libro: contiene información bibliográfica e inventario de ejemplares
+model Book {
+  id            Int      @id @default(autoincrement())
+  isbn          String   @unique
+  title         String
+  author        String
+  genre         String
+  description   String?
+  publishedYear Int
+  copies        Int      // Total de ejemplares físicos
+  available     Int      // Ejemplares disponibles para préstamo
+  loans         Loan[]
+  reviews       Review[]
+}
+
+// Modelo de préstamo: registra qué usuario tomó qué libro y en qué fechas
+model Loan {
+  id         Int        @id @default(autoincrement())
+  userId     Int
+  bookId     Int
+  loanDate   DateTime   @default(now())
+  dueDate    DateTime   // Fecha límite de devolución (14 días desde el préstamo)
+  returnDate DateTime?  // Nulo hasta que el libro sea devuelto
+  status     LoanStatus @default(ACTIVE)
+  user       User       @relation(fields: [userId], references: [id])
+  book       Book       @relation(fields: [bookId], references: [id])
+}
+
+// Modelo de reseña: puntuación y comentario de un usuario sobre un libro (único por par usuario-libro)
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  bookId    Int
+  rating    Int      // Puntuación entre 1 y 5
+  comment   String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
+
+  // Garantiza que cada usuario solo pueda reseñar un libro una vez
+  @@unique([userId, bookId])
+}

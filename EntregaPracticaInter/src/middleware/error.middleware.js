@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import AppError from '../utils/AppError.js';
 
+// Responde con 404 cuando ninguna ruta coincide con la petición
 export const notFound = (req, res, next) => {
   res.status(404).json({
     error: true,
@@ -8,8 +9,9 @@ export const notFound = (req, res, next) => {
   });
 };
 
+// Manejador global de errores: distingue errores operacionales, de Mongoose, Zod y JWT
 export const errorHandler = (err, req, res, next) => {
-  console.error('❌ Error:', err.message);
+  console.error('Error:', err.message);
 
   // AppError operacional
   if (err instanceof AppError) {

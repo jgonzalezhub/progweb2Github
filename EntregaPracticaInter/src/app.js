@@ -13,9 +13,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-// ============================================
 // Middleware globales
-// ============================================
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
@@ -33,18 +31,14 @@ app.use(limiter);
 // Archivos estáticos
 app.use('/uploads', express.static(join(__dirname, '../storage')));
 
-// ============================================
 // Rutas
-// ============================================
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.use('/api', routes);
 
-// ============================================
-// Manejo de errores — SIEMPRE AL FINAL
-// ============================================
+// Manejo de errores
 app.use(notFound);
 app.use(errorHandler);
 

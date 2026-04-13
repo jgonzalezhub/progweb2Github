@@ -41,8 +41,8 @@ src/
 │   ├── handleError.js         # Helper respuesta HTTP error
 │   ├── handleJwt.js           # Firma y verificación de tokens
 │   └── handlePassword.js      # Hash y comparación de contraseñas
-├── validators/
-│   └── user.validator.js      # Esquemas Zod de validación
+├── schemas/
+│   └── user.schema.js         # Esquemas Zod de validación
 ├── app.js                     # Configuración Express
 └── index.js                   # Arranque del servidor
 storage/                       # Imágenes subidas (no versionadas)

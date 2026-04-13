@@ -298,9 +298,7 @@ export const inviteUserCtrl = async (req, res) => {
   }
 };
 
-// ============================================================
-// BONUS: PUT /api/user/password — Cambiar contraseña
-// ============================================================
+// PUT /api/user/password — Cambiar contraseña
 export const changePasswordCtrl = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;

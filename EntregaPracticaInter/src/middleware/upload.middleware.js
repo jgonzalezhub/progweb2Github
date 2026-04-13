@@ -13,6 +13,7 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`)
 });
 
+// Solo permite subir archivos de tipo imagen
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -21,6 +22,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Instancia de multer con storage en disco y límite de 5MB
 export const upload = multer({
   storage,
   fileFilter,

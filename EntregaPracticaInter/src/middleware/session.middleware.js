@@ -2,6 +2,7 @@ import { verifyToken } from '../utils/handleJwt.js';
 import { handleHttpError } from '../utils/handleError.js';
 import { usersModel } from '../models/index.js';
 
+// Verifica el JWT del header Authorization y adjunta el usuario autenticado a req.user
 const authMiddleware = async (req, res, next) => {
   try {
     if (!req.headers.authorization) return handleHttpError(res, 'NOT_TOKEN', 401);

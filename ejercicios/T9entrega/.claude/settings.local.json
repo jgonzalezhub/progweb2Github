@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\ejercicios\\\\T9entrega\\\\prisma\\\\migrations\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\ejercicios\\\\T9entrega\\\\src\\\\config\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\ejercicios\\\\T9entrega\\\\src\\\\controllers\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\ejercicios\\\\T9entrega\\\\src\\\\middleware\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\ejercicios\\\\T9entrega\\\\src\\\\routes\")",
+      "Bash(npx prisma:*)",
+      "Bash(Test-NetConnection -ComputerName aws-1-eu-central-1.pooler.supabase.com -Port 6543)",
+      "Bash(curl -v --connect-timeout 5 telnet://aws-1-eu-central-1.pooler.supabase.com:6543)"
+    ]
+  }
+}

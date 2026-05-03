@@ -1,0 +1,176 @@
+### ==========================================
+### 🎬 BlockBuster API - Tests
+### ==========================================
+
+@baseUrl = http://localhost:3000/api
+@movieId = REEMPLAZAR_CON_ID_REAL
+
+### ==========================================
+### CRUD
+### ==========================================
+
+### Crear película - Terminator 2
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "title": "Terminator 2",
+  "director": "James Cameron",
+  "year": 1991,
+  "genre": "scifi",
+  "stock": 3
+}
+
+### Crear película - The Matrix
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "title": "The Matrix",
+  "director": "Wachowski Sisters",
+  "year": 1999,
+  "genre": "scifi",
+  "stock": 5
+}
+
+### Crear película - Superbad (comedia)
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "title": "Superbad",
+  "director": "Greg Mottola",
+  "year": 2007,
+  "genre": "comedy",
+  "stock": 4
+}
+
+### Crear película duplicada (debe fallar 409)
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "title": "The Matrix",
+  "director": "Otro Director",
+  "year": 2020,
+  "genre": "action"
+}
+
+### Listar todas las películas
+GET {{baseUrl}}/movies
+
+### Filtrar por género (scifi)
+GET {{baseUrl}}/movies?genre=scifi
+
+### Filtrar por género (comedy)
+GET {{baseUrl}}/movies?genre=comedy
+
+### Obtener película por ID
+GET {{baseUrl}}/movies/{{movieId}}
+
+### ==========================================
+### ALQUILER
+### ==========================================
+
+### Alquilar película (1ª vez - debe funcionar)
+POST {{baseUrl}}/movies/{{movieId}}/rent
+
+### Alquilar película (2ª vez)
+POST {{baseUrl}}/movies/{{movieId}}/rent
+
+### Alquilar película (3ª vez)
+POST {{baseUrl}}/movies/{{movieId}}/rent
+
+### Alquilar película (4ª vez - debe fallar si stock era 3)
+POST {{baseUrl}}/movies/{{movieId}}/rent
+
+### Devolver película
+POST {{baseUrl}}/movies/{{movieId}}/return
+
+### Alquilar de nuevo (ahora debe funcionar)
+POST {{baseUrl}}/movies/{{movieId}}/rent
+
+### ==========================================
+### ESTADÍSTICAS
+### ==========================================
+
+### Top 5 más alquiladas
+GET {{baseUrl}}/movies/stats/top
+
+### Top 3 más alquiladas
+GET {{baseUrl}}/movies/stats/top?limit=3
+
+### ==========================================
+### LIMPIEZA
+### ==========================================
+
+### Eliminar película
+DELETE {{baseUrl}}/movies/{{movieId}}
+
+### ==========================================
+### CARÁTULAS
+### ==========================================
+
+### Subir carátula a una película
+PATCH {{baseUrl}}/movies/{{movieId}}/cover
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="cover"; filename="cover.jpg"
+Content-Type: image/jpeg
+
+< ./test-cover.jpg
+--boundary--
+
+### Obtener carátula de una película
+GET {{baseUrl}}/movies/{{movieId}}/cover
+
+### Obtener carátula de película sin carátula (debe fallar 404)
+GET {{baseUrl}}/movies/{{movieId}}/cover
+
+### Subir carátula a película inexistente (debe fallar 404)
+PATCH {{baseUrl}}/movies/000000000000000000000000/cover
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="cover"; filename="cover.jpg"
+Content-Type: image/jpeg
+
+< ./test-cover.jpg
+--boundary--
+
+### ==========================================
+### VALIDACIONES
+### ==========================================
+
+### Crear sin título (debe fallar)
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "director": "Alguien",
+  "year": 2020,
+  "genre": "action"
+}
+
+### Crear con género inválido (debe fallar)
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "title": "Película Rara",
+  "director": "Director",
+  "year": 2020,
+  "genre": "musical"
+}
+
+### Crear con año futuro (debe fallar)
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "title": "Película del Futuro",
+  "director": "Director",
+  "year": 2099,
+  "genre": "scifi"
+}

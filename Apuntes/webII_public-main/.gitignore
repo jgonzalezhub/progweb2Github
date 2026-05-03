@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Output files
+analysis-report.json
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code / MCP (may contain API keys)
+.mcp.json
+.claude/settings.local.json

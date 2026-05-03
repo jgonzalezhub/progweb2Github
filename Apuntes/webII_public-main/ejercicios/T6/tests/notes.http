@@ -1,0 +1,123 @@
+### ==========================================
+### 📝 Notes API - Soft Delete Tests
+### ==========================================
+
+@baseUrl = http://localhost:3000/api
+@noteId = REEMPLAZAR_CON_ID_REAL
+
+### ==========================================
+### CREAR NOTAS
+### ==========================================
+
+### Crear nota simple
+POST {{baseUrl}}/notes
+Content-Type: application/json
+
+{
+  "title": "Mi primera nota",
+  "content": "Contenido de prueba"
+}
+
+### Crear nota con color
+POST {{baseUrl}}/notes
+Content-Type: application/json
+
+{
+  "title": "Nota importante",
+  "content": "No olvidar esto",
+  "color": "pink",
+  "pinned": true
+}
+
+### Crear nota azul
+POST {{baseUrl}}/notes
+Content-Type: application/json
+
+{
+  "title": "Ideas para el proyecto",
+  "content": "1. Usar MongoDB\n2. Implementar soft delete\n3. Añadir tests",
+  "color": "blue"
+}
+
+### ==========================================
+### LISTAR
+### ==========================================
+
+### Listar todas (excluye eliminadas)
+GET {{baseUrl}}/notes
+
+### Ver papelera
+GET {{baseUrl}}/notes/trash
+
+### Buscar notas
+GET {{baseUrl}}/notes/search?q=importante
+
+### ==========================================
+### SOFT DELETE Y RESTAURAR
+### ==========================================
+
+### Soft delete (mover a papelera)
+DELETE {{baseUrl}}/notes/{{noteId}}
+
+### Ver que ya no aparece en listado normal
+GET {{baseUrl}}/notes
+
+### Ver en papelera
+GET {{baseUrl}}/notes/trash
+
+### Restaurar nota
+POST {{baseUrl}}/notes/{{noteId}}/restore
+
+### Verificar que volvió al listado
+GET {{baseUrl}}/notes
+
+### ==========================================
+### HARD DELETE
+### ==========================================
+
+### Eliminar permanentemente
+DELETE {{baseUrl}}/notes/{{noteId}}/permanent
+
+### Vaciar toda la papelera
+DELETE {{baseUrl}}/notes/trash/empty
+
+### ==========================================
+### ACTUALIZAR
+### ==========================================
+
+### Actualizar nota
+PUT {{baseUrl}}/notes/{{noteId}}
+Content-Type: application/json
+
+{
+  "title": "Título actualizado",
+  "color": "green",
+  "pinned": true
+}
+
+### ==========================================
+### ERRORES
+### ==========================================
+
+### Crear sin título (error validación)
+POST {{baseUrl}}/notes
+Content-Type: application/json
+
+{
+  "content": "Sin título"
+}
+
+### ID inválido (CastError)
+GET {{baseUrl}}/notes/id-no-valido
+
+### Nota no existe
+GET {{baseUrl}}/notes/507f1f77bcf86cd799439011
+
+### Color inválido
+POST {{baseUrl}}/notes
+Content-Type: application/json
+
+{
+  "title": "Nota",
+  "color": "rojo"
+}

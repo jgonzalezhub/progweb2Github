@@ -1,0 +1,256 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@token = {{login.response.body.token}}
+
+# ============================================================
+# HEALTH
+# ============================================================
+
+### Health Check
+GET http://localhost:3000/health
+
+# ============================================================
+# USUARIOS
+# ============================================================
+
+### 1. Registrar usuario
+# @name register
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+  "email": "usuario@ejemplo.com",
+  "password": "password123"
+}
+
+### 2. Verificar email
+PUT {{baseUrl}}/user/validation
+Authorization: Bearer {{register.response.body.token}}
+Content-Type: application/json
+
+{
+  "code": "123456"
+}
+
+### 3. Login
+# @name login
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+  "email": "usuario@ejemplo.com",
+  "password": "password123"
+}
+
+### 4. Onboarding personal
+PUT {{baseUrl}}/user/register
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Juan",
+  "lastName": "García",
+  "nif": "12345678A"
+}
+
+### 5. Crear empresa
+PATCH {{baseUrl}}/user/company
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isFreelance": false,
+  "cif": "B12345678",
+  "name": "Mi Empresa SL"
+}
+
+### 6. Obtener usuario autenticado
+GET {{baseUrl}}/user
+Authorization: Bearer {{token}}
+
+### 7. Eliminar usuario (soft)
+DELETE {{baseUrl}}/user?soft=true
+Authorization: Bearer {{token}}
+
+# ============================================================
+# CLIENTES
+# ============================================================
+
+### 8. Crear cliente
+POST {{baseUrl}}/client
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Acme Corporation",
+  "cif": "A12345678",
+  "email": "contacto@acme.com",
+  "phone": "612345678",
+  "address": {
+    "street": "Calle Mayor",
+    "number": "1",
+    "postal": "28001",
+    "city": "Madrid",
+    "province": "Madrid"
+  }
+}
+
+### 9. Listar clientes (paginación + filtros)
+GET {{baseUrl}}/client?page=1&limit=10&name=Acme&sort=createdAt
+Authorization: Bearer {{token}}
+
+### 10. Obtener cliente por ID
+GET {{baseUrl}}/client/{{clientId}}
+Authorization: Bearer {{token}}
+
+### 11. Actualizar cliente
+PUT {{baseUrl}}/client/{{clientId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Acme Corp Updated",
+  "phone": "699999999"
+}
+
+### 12. Archivar cliente (soft delete)
+DELETE {{baseUrl}}/client/{{clientId}}?soft=true
+Authorization: Bearer {{token}}
+
+### 13. Listar archivados
+GET {{baseUrl}}/client/archived
+Authorization: Bearer {{token}}
+
+### 14. Restaurar cliente
+PATCH {{baseUrl}}/client/{{clientId}}/restore
+Authorization: Bearer {{token}}
+
+### 15. Eliminar cliente (hard)
+DELETE {{baseUrl}}/client/{{clientId}}
+Authorization: Bearer {{token}}
+
+# ============================================================
+# PROYECTOS
+# ============================================================
+
+### 16. Crear proyecto
+POST {{baseUrl}}/project
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Reforma Oficina Centro",
+  "projectCode": "PRJ-2025-001",
+  "client": "{{clientId}}",
+  "address": {
+    "street": "Gran Vía",
+    "number": "28",
+    "postal": "28013",
+    "city": "Madrid",
+    "province": "Madrid"
+  },
+  "notes": "Reforma integral de planta baja"
+}
+
+### 17. Listar proyectos
+GET {{baseUrl}}/project?page=1&limit=10&active=true&sort=-createdAt
+Authorization: Bearer {{token}}
+
+### 18. Obtener proyecto por ID
+GET {{baseUrl}}/project/{{projectId}}
+Authorization: Bearer {{token}}
+
+### 19. Actualizar proyecto
+PUT {{baseUrl}}/project/{{projectId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Reforma Oficina Actualizada",
+  "active": true
+}
+
+### 20. Archivar proyecto
+DELETE {{baseUrl}}/project/{{projectId}}?soft=true
+Authorization: Bearer {{token}}
+
+### 21. Restaurar proyecto
+PATCH {{baseUrl}}/project/{{projectId}}/restore
+Authorization: Bearer {{token}}
+
+# ============================================================
+# ALBARANES
+# ============================================================
+
+### 22. Crear albarán de horas
+POST {{baseUrl}}/deliverynote
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "project": "{{projectId}}",
+  "format": "hours",
+  "description": "Trabajo de albañilería",
+  "workDate": "2025-03-15",
+  "hours": 8
+}
+
+### 23. Crear albarán de horas con múltiples trabajadores
+POST {{baseUrl}}/deliverynote
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "project": "{{projectId}}",
+  "format": "hours",
+  "description": "Equipo de montaje",
+  "workDate": "2025-03-16",
+  "workers": [
+    { "name": "Carlos Ruiz", "hours": 8 },
+    { "name": "Ana Martínez", "hours": 6 }
+  ]
+}
+
+### 24. Crear albarán de material
+POST {{baseUrl}}/deliverynote
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "project": "{{projectId}}",
+  "format": "material",
+  "description": "Suministro de azulejos",
+  "workDate": "2025-03-17",
+  "material": "Azulejos cerámicos 60x60",
+  "quantity": 120,
+  "unit": "m2"
+}
+
+### 25. Listar albaranes (filtros)
+GET {{baseUrl}}/deliverynote?page=1&limit=10&format=hours&signed=false&from=2025-01-01&to=2025-12-31
+Authorization: Bearer {{token}}
+
+### 26. Obtener albarán por ID (con populate)
+GET {{baseUrl}}/deliverynote/{{noteId}}
+Authorization: Bearer {{token}}
+
+### 27. Descargar PDF del albarán
+GET {{baseUrl}}/deliverynote/pdf/{{noteId}}
+Authorization: Bearer {{token}}
+
+### 28. Firmar albarán (requiere imagen)
+# Usar multipart/form-data con campo 'signature'
+PATCH {{baseUrl}}/deliverynote/{{noteId}}/sign
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="signature"; filename="firma.png"
+Content-Type: image/png
+
+< ./firma.png
+--boundary--
+
+### 29. Eliminar albarán (solo si no está firmado)
+DELETE {{baseUrl}}/deliverynote/{{noteId}}
+Authorization: Bearer {{token}}

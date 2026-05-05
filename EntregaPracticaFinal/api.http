@@ -1,6 +1,9 @@
 ### Variables
 @baseUrl = http://localhost:3000/api
 @token = {{login.response.body.token}}
+@clientId = {{createClient.response.body.data._id}}
+@projectId = {{createProject.response.body.data._id}}
+@noteId = {{createNote.response.body.data._id}}
 
 # ============================================================
 # HEALTH
@@ -77,6 +80,7 @@ Authorization: Bearer {{token}}
 # ============================================================
 
 ### 8. Crear cliente
+# @name createClient
 POST {{baseUrl}}/client
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -134,6 +138,7 @@ Authorization: Bearer {{token}}
 # ============================================================
 
 ### 16. Crear proyecto
+# @name createProject
 POST {{baseUrl}}/project
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -183,6 +188,7 @@ Authorization: Bearer {{token}}
 # ============================================================
 
 ### 22. Crear albarán de horas
+# @name createNote
 POST {{baseUrl}}/deliverynote
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -239,7 +245,7 @@ GET {{baseUrl}}/deliverynote/pdf/{{noteId}}
 Authorization: Bearer {{token}}
 
 ### 28. Firmar albarán (requiere imagen)
-# Usar multipart/form-data con campo 'signature'
+# Coloca una imagen firma.png en la raíz del proyecto antes de ejecutar esta petición
 PATCH {{baseUrl}}/deliverynote/{{noteId}}/sign
 Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=boundary

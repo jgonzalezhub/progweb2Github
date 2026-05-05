@@ -54,12 +54,31 @@ const router = Router();
  *               email:
  *                 type: string
  *                 format: email
+ *                 example: usuario@example.com
  *               password:
  *                 type: string
  *                 minLength: 8
+ *                 example: miPassword123
  *     responses:
  *       201:
- *         description: Usuario registrado
+ *         description: Usuario registrado. Devuelve token JWT y refreshToken.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Error de validación (email inválido, contraseña corta)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       409:
  *         description: Email ya existe
  *         content:
@@ -87,17 +106,49 @@ router.post('/register', applyAuthLimiter, validate(registerSchema), registerCtr
  *             properties:
  *               email:
  *                 type: string
+ *                 format: email
+ *                 example: usuario@example.com
  *               password:
  *                 type: string
+ *                 example: miPassword123
  *     responses:
  *       200:
- *         description: Login correcto, devuelve token JWT
+ *         description: Login correcto. Devuelve token JWT y refreshToken.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Error de validación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       401:
  *         description: Contraseña incorrecta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       403:
  *         description: Email no verificado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Usuario no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/login', applyAuthLimiter, validate(loginSchema), loginCtrl);
 
@@ -107,6 +158,34 @@ router.post('/login', applyAuthLimiter, validate(loginSchema), loginCtrl);
  *   post:
  *     summary: Renovar access token con refresh token
  *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [refreshToken]
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tokens renovados correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *       401:
+ *         description: Refresh token inválido o no proporcionado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/refresh', refreshTokenCtrl);
 
@@ -120,9 +199,20 @@ router.post('/refresh', refreshTokenCtrl);
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Datos del usuario
+ *         description: Datos del usuario con compañía populada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
  *       401:
- *         description: No autenticado
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/', authMiddleware, getMeCtrl);
 
@@ -134,6 +224,46 @@ router.get('/', authMiddleware, getMeCtrl);
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Juan
+ *               lastName:
+ *                 type: string
+ *                 example: García
+ *               nif:
+ *                 type: string
+ *                 example: 12345678A
+ *               address:
+ *                 $ref: '#/components/schemas/Address'
+ *     responses:
+ *       200:
+ *         description: Datos personales actualizados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Error de validación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.put('/register', authMiddleware, validate(onboardingPersonalSchema), onboardingPersonalCtrl);
 
@@ -159,9 +289,35 @@ router.put('/register', authMiddleware, validate(onboardingPersonalSchema), onbo
  *                 maxLength: 6
  *     responses:
  *       200:
- *         description: Email verificado
+ *         description: Email verificado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Email verificado correctamente
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Código de verificación incorrecto
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       429:
- *         description: Máximo de intentos alcanzado
+ *         description: Máximo de intentos alcanzado (3 intentos fallidos)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.put('/validation', authMiddleware, validate(validationCodeSchema), validateEmailCtrl);
 
@@ -170,9 +326,64 @@ router.put('/validation', authMiddleware, validate(validationCodeSchema), valida
  * /api/user/company:
  *   patch:
  *     summary: Crear o unirse a una empresa
+ *     description: Si el CIF ya existe, el usuario se une como guest. Si no existe, se crea la empresa y el usuario es admin.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [cif]
+ *             properties:
+ *               cif:
+ *                 type: string
+ *                 example: B12345678
+ *               name:
+ *                 type: string
+ *                 example: Mi Empresa SL
+ *               isFreelance:
+ *                 type: boolean
+ *                 default: false
+ *               address:
+ *                 $ref: '#/components/schemas/Address'
+ *     responses:
+ *       200:
+ *         description: Usuario unido a empresa existente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       201:
+ *         description: Empresa creada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Error de validación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.patch('/company', authMiddleware, validate(onboardingCompanySchema), onboardingCompanyCtrl);
 
@@ -190,10 +401,36 @@ router.patch('/company', authMiddleware, validate(onboardingCompanySchema), onbo
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required: [logo]
  *             properties:
  *               logo:
  *                 type: string
  *                 format: binary
+ *                 description: Imagen del logo (PNG, JPG, WebP — máx. 5MB)
+ *     responses:
+ *       200:
+ *         description: Logo actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Fichero no proporcionado o empresa no asociada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.patch('/logo', authMiddleware, uploadImage.single('logo'), uploadLogoCtrl);
 
@@ -201,10 +438,27 @@ router.patch('/logo', authMiddleware, uploadImage.single('logo'), uploadLogoCtrl
  * @swagger
  * /api/user/logout:
  *   post:
- *     summary: Cerrar sesión
+ *     summary: Cerrar sesión (invalida el refresh token)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Sesión cerrada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Sesión cerrada correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/logout', authMiddleware, logoutCtrl);
 
@@ -221,6 +475,30 @@ router.post('/logout', authMiddleware, logoutCtrl);
  *         name: soft
  *         schema:
  *           type: boolean
+ *         description: Si true realiza soft delete (marca deletedAt), si false borra definitivamente
+ *     responses:
+ *       200:
+ *         description: Usuario eliminado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Usuario eliminado correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Usuario no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.delete('/', authMiddleware, deleteUserCtrl);
 
@@ -228,10 +506,58 @@ router.delete('/', authMiddleware, deleteUserCtrl);
  * @swagger
  * /api/user/invite:
  *   post:
- *     summary: Invitar a un compañero (solo admin)
+ *     summary: Invitar a un compañero a la empresa (solo admin)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: compañero@empresa.com
+ *     responses:
+ *       201:
+ *         description: Usuario invitado correctamente. Se envía email con contraseña temporal.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Error de validación o empresa no asociada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Solo los administradores pueden invitar usuarios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: El email ya está registrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post(
   '/invite',
@@ -249,6 +575,44 @@ router.post(
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword]
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 example: passwordActual123
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 example: nuevaPassword456
+ *     responses:
+ *       200:
+ *         description: Contraseña actualizada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Contraseña actualizada correctamente
+ *       400:
+ *         description: Error de validación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token inválido o contraseña actual incorrecta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.put('/password', authMiddleware, validate(changePasswordSchema), changePasswordCtrl);
 

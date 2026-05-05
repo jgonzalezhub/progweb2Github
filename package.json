@@ -1,7 +1,16 @@
 {
   "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "@slack/webhook": "^7.0.9",
+    "morgan-body": "^2.6.9",
     "multer": "^2.0.2",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.8.0"
   }
 }

@@ -99,8 +99,22 @@ export const getArchivedClients = async (req, res) => {
   try {
     if (!req.user.company) return handleHttpError(res, 'NO_COMPANY_ASSOCIATED', 400);
 
-    const clients = await Client.find({ company: req.user.company, deleted: true });
-    res.json({ data: clients });
+    const { page = 1, limit = 10 } = req.query;
+    const filter = { company: req.user.company, deleted: true };
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await Client.countDocuments(filter);
+    const clients = await Client.find(filter)
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    res.json({
+      data: clients,
+      totalItems: total,
+      totalPages: Math.ceil(total / Number(limit)),
+      currentPage: Number(page)
+    });
   } catch (err) {
     handleHttpError(res, 'ERROR_GET_ARCHIVED_CLIENTS');
   }

@@ -158,18 +158,15 @@ export const signDeliveryNote = async (req, res) => {
     note.signedAt = new Date();
     note.signatureUrl = signatureResult.secure_url;
 
-    // Poblar para generar PDF completo
-    const populatedNote = await DeliveryNote.findById(note._id)
-      .populate('user', 'name lastName email')
-      .populate('client', 'name cif email phone address')
-      .populate('project', 'name projectCode address');
-
-    populatedNote.signed = true;
-    populatedNote.signedAt = note.signedAt;
-    populatedNote.signatureUrl = note.signatureUrl;
+    // Poblar en el mismo documento para generar el PDF sin consulta extra
+    await note.populate([
+      { path: 'user', select: 'name lastName email' },
+      { path: 'client', select: 'name cif email phone address' },
+      { path: 'project', select: 'name projectCode address' }
+    ]);
 
     // Generar y subir PDF a Cloudinary
-    const pdfBuffer = await generateDeliveryNotePDF(populatedNote);
+    const pdfBuffer = await generateDeliveryNotePDF(note);
     const pdfResult = await uploadPDF(pdfBuffer, {
       folder: 'bildyapp/pdfs',
       public_id: `albaran-${note._id}`

@@ -39,19 +39,47 @@ const router = Router();
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Acme Corp
  *               cif:
  *                 type: string
+ *                 example: B12345678
  *               email:
  *                 type: string
+ *                 format: email
+ *                 example: acme@example.com
  *               phone:
  *                 type: string
+ *                 example: "+34 600 123 456"
  *               address:
  *                 $ref: '#/components/schemas/Address'
  *     responses:
  *       201:
- *         description: Cliente creado
+ *         description: Cliente creado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/Client'
+ *       400:
+ *         description: Error de validación o empresa no asociada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       409:
- *         description: CIF ya existe en la empresa
+ *         description: Ya existe un cliente con ese CIF en la empresa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/', authMiddleware, validate(createClientSchema), createClient);
 
@@ -59,13 +87,41 @@ router.post('/', authMiddleware, validate(createClientSchema), createClient);
  * @swagger
  * /api/client/archived:
  *   get:
- *     summary: Listar clientes archivados
+ *     summary: Listar clientes archivados (con paginación)
  *     tags: [Clients]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
- *         description: Lista de clientes archivados
+ *         description: Lista paginada de clientes archivados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Pagination'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Client'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/archived', authMiddleware, getArchivedClients);
 
@@ -92,15 +148,34 @@ router.get('/archived', authMiddleware, getArchivedClients);
  *         name: name
  *         schema:
  *           type: string
- *         description: Búsqueda parcial por nombre
+ *         description: Búsqueda parcial por nombre (insensible a mayúsculas)
+ *         example: García
  *       - in: query
  *         name: sort
  *         schema:
  *           type: string
  *           default: createdAt
+ *         description: Campo de ordenación (prefijo - para descendente)
  *     responses:
  *       200:
  *         description: Lista paginada de clientes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Pagination'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Client'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/', authMiddleware, getClients);
 
@@ -118,11 +193,29 @@ router.get('/', authMiddleware, getClients);
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID del cliente (ObjectId de MongoDB)
  *     responses:
  *       200:
  *         description: Datos del cliente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/Client'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Cliente no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/:id', authMiddleware, validateObjectId(), getClientById);
 
@@ -145,10 +238,53 @@ router.get('/:id', authMiddleware, validateObjectId(), getClientById);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Client'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               cif:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               phone:
+ *                 type: string
+ *               address:
+ *                 $ref: '#/components/schemas/Address'
  *     responses:
  *       200:
  *         description: Cliente actualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/Client'
+ *       400:
+ *         description: Error de validación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Cliente no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Ya existe un cliente con ese CIF en la empresa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.put('/:id', authMiddleware, validateObjectId(), validate(updateClientSchema), updateClient);
 
@@ -170,10 +306,30 @@ router.put('/:id', authMiddleware, validateObjectId(), validate(updateClientSche
  *         name: soft
  *         schema:
  *           type: boolean
- *         description: Si true, archiva; si false, borra definitivamente
+ *         description: Si true archiva (soft delete), si false borra definitivamente
  *     responses:
  *       200:
- *         description: Cliente eliminado o archivado
+ *         description: Cliente eliminado o archivado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Cliente archivado correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Cliente no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.delete('/:id', authMiddleware, validateObjectId(), deleteClient);
 
@@ -193,7 +349,27 @@ router.delete('/:id', authMiddleware, validateObjectId(), deleteClient);
  *           type: string
  *     responses:
  *       200:
- *         description: Cliente restaurado
+ *         description: Cliente restaurado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Cliente restaurado correctamente
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Cliente no encontrado o no archivado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.patch('/:id/restore', authMiddleware, validateObjectId(), restoreClient);
 

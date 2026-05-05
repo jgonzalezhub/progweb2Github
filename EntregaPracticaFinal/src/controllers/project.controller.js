@@ -128,11 +128,23 @@ export const getArchivedProjects = async (req, res) => {
   try {
     if (!req.user.company) return handleHttpError(res, 'NO_COMPANY_ASSOCIATED', 400);
 
-    const projects = await Project.find({ company: req.user.company, deleted: true }).populate(
-      'client',
-      'name cif'
-    );
-    res.json({ data: projects });
+    const { page = 1, limit = 10 } = req.query;
+    const filter = { company: req.user.company, deleted: true };
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const total = await Project.countDocuments(filter);
+    const projects = await Project.find(filter)
+      .populate('client', 'name cif')
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    res.json({
+      data: projects,
+      totalItems: total,
+      totalPages: Math.ceil(total / Number(limit)),
+      currentPage: Number(page)
+    });
   } catch (err) {
     handleHttpError(res, 'ERROR_GET_ARCHIVED_PROJECTS');
   }

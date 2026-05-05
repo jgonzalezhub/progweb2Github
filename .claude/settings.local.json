@@ -5,7 +5,14 @@
       "Bash(node --env-file=.env src/app.js)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:github.com)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(git check-ignore *)",
+      "Bash(Test-Path .gitignore)",
+      "Bash(Test-Path EntregaPracticaFinal/node_modules)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\EntregaPracticaFinal\" -Force | ForEach-Object { $_.Name })",
+      "PowerShell(Copy-Item \"c:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\PracticaCompleta\\\\.env\" -Destination \"c:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\EntregaPracticaFinal\\\\.env\" -Force)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\PracticaCompleta\" -Recurse -Force | Where-Object { !$_.PSIsContainer } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"c:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\PracticaCompleta\\\\\", \"\"\\) } | Where-Object { $_ -notmatch \"^node_modules\" -and $_ -notmatch \"^coverage\" })",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\PracticaCompleta\" -Recurse -Force | Where-Object { !$_.PSIsContainer } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"c:\\\\Users\\\\javig\\\\OneDrive\\\\Escritorio\\\\progweb2Github\\\\PracticaCompleta\\\\\", \"\"\\) } | Where-Object { $_ -notmatch \"^node_modules\" -and $_ -notmatch \"^coverage\" -and $_ -notmatch \"^\\\\.env$\" })"
     ]
   }
 }

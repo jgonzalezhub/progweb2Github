@@ -3,9 +3,10 @@ import Project from '../models/Project.js';
 import { handleHttpError } from '../utils/handleError.js';
 import { getIO } from '../config/socket.js';
 import { generateDeliveryNotePDF } from '../services/pdf.service.js';
-import { uploadImage, uploadPDF } from '../services/storage.service.js';
+import { uploadImage, uploadPDF, deleteFile } from '../services/storage.service.js';
 
 // POST /api/deliverynote
+// Crea un albarán de material u horas vinculado a un proyecto de la empresa del usuario
 export const createDeliveryNote = async (req, res) => {
   try {
     if (!req.user.company) return handleHttpError(res, 'NO_COMPANY_ASSOCIATED', 400);
@@ -45,6 +46,7 @@ export const createDeliveryNote = async (req, res) => {
 };
 
 // GET /api/deliverynote
+// Devuelve la lista paginada de albaranes con filtros por proyecto, cliente, formato, firma y rango de fechas
 export const getDeliveryNotes = async (req, res) => {
   try {
     if (!req.user.company) return handleHttpError(res, 'NO_COMPANY_ASSOCIATED', 400);
@@ -88,6 +90,7 @@ export const getDeliveryNotes = async (req, res) => {
 };
 
 // GET /api/deliverynote/:id
+// Devuelve un albarán por ID con usuario, cliente y proyecto populados
 export const getDeliveryNoteById = async (req, res) => {
   try {
     const note = await DeliveryNote.findOne({
@@ -108,6 +111,7 @@ export const getDeliveryNoteById = async (req, res) => {
 };
 
 // GET /api/deliverynote/pdf/:id
+// Genera el PDF del albarán al vuelo o redirige a la URL en Cloudinary si ya está firmado
 export const downloadPDF = async (req, res) => {
   try {
     const note = await DeliveryNote.findOne({
@@ -137,7 +141,10 @@ export const downloadPDF = async (req, res) => {
 };
 
 // PATCH /api/deliverynote/:id/sign
+// Firma el albarán subiendo la imagen de firma y el PDF generado a Cloudinary
 export const signDeliveryNote = async (req, res) => {
+  // Guarda el public_id de la firma para poder borrarla si el flujo falla después
+  let signaturePublicId = null;
   try {
     const note = await DeliveryNote.findOne({
       _id: req.params.id,
@@ -153,6 +160,8 @@ export const signDeliveryNote = async (req, res) => {
     const signatureResult = await uploadImage(req.file.buffer, {
       folder: 'bildyapp/signatures'
     });
+    // Punto de compensación: si cualquier paso posterior falla, borramos esta imagen
+    signaturePublicId = signatureResult.public_id;
 
     note.signed = true;
     note.signedAt = new Date();
@@ -180,12 +189,19 @@ export const signDeliveryNote = async (req, res) => {
 
     res.json({ message: 'Albarán firmado correctamente', data: note });
   } catch (err) {
+    // Compensación: si la firma ya se subió pero el flujo posterior falló, borrarla de Cloudinary
+    if (signaturePublicId) {
+      await deleteFile(signaturePublicId).catch((cleanupErr) =>
+        console.error('Error limpiando firma huérfana de Cloudinary:', cleanupErr)
+      );
+    }
     console.error(err);
     handleHttpError(res, 'ERROR_SIGN_DELIVERY_NOTE');
   }
 };
 
 // DELETE /api/deliverynote/:id (solo si no está firmado)
+// Elimina permanentemente un albarán siempre que no haya sido firmado previamente
 export const deleteDeliveryNote = async (req, res) => {
   try {
     const note = await DeliveryNote.findOne({

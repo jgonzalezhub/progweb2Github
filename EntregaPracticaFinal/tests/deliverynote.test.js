@@ -210,6 +210,47 @@ describe('GET /api/deliverynote/pdf/:id', () => {
   });
 });
 
+describe('PATCH /api/deliverynote/:id/sign - compensación si uploadPDF falla', () => {
+  let storage;
+
+  beforeEach(async () => {
+    storage = await import('../src/services/storage.service.js');
+    storage.uploadImage.mockClear();
+    storage.uploadPDF.mockClear();
+    storage.deleteFile.mockClear();
+  });
+
+  it('debería dejar signed: false en BD y llamar deleteFile con el public_id de la firma cuando uploadPDF falla', async () => {
+    const { token, projectId } = await setupFull('11');
+
+    const created = await request(app)
+      .post('/api/deliverynote')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ project: projectId, format: 'hours', hours: 4 });
+
+    // Provocar fallo en uploadPDF solo para esta llamada
+    storage.uploadPDF.mockRejectedValueOnce(new Error('Cloudinary PDF upload failed'));
+
+    const res = await request(app)
+      .patch(`/api/deliverynote/${created.body.data._id}/sign`)
+      .set('Authorization', `Bearer ${token}`)
+      .attach('signature', Buffer.from('fake-image-data'), {
+        filename: 'signature.png',
+        contentType: 'image/png'
+      });
+
+    expect(res.status).toBe(500);
+
+    // (a) signed: false en BD — note.save() nunca se ejecutó
+    const DeliveryNote = (await import('../src/models/DeliveryNote.js')).default;
+    const note = await DeliveryNote.findById(created.body.data._id);
+    expect(note.signed).toBe(false);
+
+    // (b) deleteFile llamado con el public_id de la firma ya subida
+    expect(storage.deleteFile).toHaveBeenCalledWith('bildyapp/signatures/test');
+  });
+});
+
 describe('DELETE /api/deliverynote/:id', () => {
   it('debería eliminar albarán no firmado', async () => {
     const { token, projectId } = await setupFull('9');
